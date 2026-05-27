@@ -9,6 +9,7 @@ type ThemeKey =
   | 'employment'
   | 'anxiety'
   | 'confidence'
+  | 'information'
   | 'pressure'
   | 'failure'
   | 'decision'
@@ -72,6 +73,11 @@ const themeInsights: ThemeInsight[] = [
     emotional: '자신감이 낮아진 이유를 비난 없이 살펴보는 것이 먼저 필요해 보여요.',
   },
   {
+    key: 'information',
+    practical: '정보가 부족한 부분은 필요한 정보, 확인할 곳, 질문할 사람을 나눠서 채워보겠습니다.',
+    emotional: '정보가 부족하면 결정이 더 어렵게 느껴질 수 있으니, 모르는 부분을 차분히 분리해보면 좋겠습니다.',
+  },
+  {
     key: 'pressure',
     practical: '압박감이 큰 상황에서는 이번 주에 통제 가능한 준비 항목만 따로 떼어보겠습니다.',
     emotional: '주변 기대나 시간 압박이 나를 얼마나 몰아붙이고 있는지부터 정리해볼게요.',
@@ -103,7 +109,8 @@ const keywordMap: Record<ThemeKey, string[]> = {
   graduate: ['대학원', '석사', '연구실', '교수님', 'graduate'],
   employment: ['취업', '직무', '회사', '채용', 'employment', 'job'],
   anxiety: ['불안', '걱정', '막막', '초조', 'anxiety', 'anxious'],
-  confidence: ['자신감', '자존감', '부족', 'confidence'],
+  confidence: ['자신감', '자존감', 'confidence'],
+  information: ['정보', '자료', '찾아봐야', '모르겠', '모름', 'information'],
   pressure: ['압박', '부담', '스트레스', 'pressure', 'stress'],
   failure: ['실패', '떨어질', '탈락', 'fear', 'fail'],
   decision: ['고민', '선택', '결정', '진로', '갈등', 'decision'],
@@ -145,6 +152,10 @@ const practicalNextStep = (themes: ThemeInsight[]) => {
     return '다음 단계는 이력서 초안 1개와 예상 면접 질문 3개를 준비하는 것입니다.';
   }
 
+  if (keys.includes('information')) {
+    return '다음 단계는 필요한 정보 3가지를 적고, 학교 상담센터, 학과 선배, 채용 공고처럼 확인할 출처를 하나씩 연결하는 것입니다.';
+  }
+
   if (keys.includes('majorFit')) {
     return '다음 단계는 잘 맞았던 수업 2개와 관심 없는 활동 2개를 적고, 관련 직무 후보를 3개만 추려보는 것입니다.';
   }
@@ -155,8 +166,12 @@ const practicalNextStep = (themes: ThemeInsight[]) => {
 const emotionalReflection = (themes: ThemeInsight[]) => {
   const keys = themes.map((theme) => theme.key);
 
+  if (keys.includes('information')) {
+    return '오늘은 부족한 정보를 하나씩 확인 가능한 질문으로 바꾸는 것부터 시작해보면 좋겠습니다.';
+  }
+
   if (keys.includes('confidence') || keys.includes('failure')) {
-    return '오늘은 “내가 부족하다”는 생각과 실제로 보완할 수 있는 부분을 분리해보면 좋겠습니다.';
+    return '오늘은 스스로를 평가하는 생각과 실제로 확인해야 할 사실을 분리해보면 좋겠습니다.';
   }
 
   if (keys.includes('pressure') || keys.includes('anxiety')) {
