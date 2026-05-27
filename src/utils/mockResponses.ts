@@ -108,7 +108,7 @@ const keywordMap: Record<ThemeKey, string[]> = {
   interview: ['면접', 'interview'],
   graduate: ['대학원', '석사', '연구실', '교수님', 'graduate'],
   employment: ['취업', '직무', '회사', '채용', 'employment', 'job'],
-  information: ['정보', '자료', '찾아봐야', '모르겠', '모름', 'information'],
+  information: ['정보', '자료', '출처', '공고', '조건', '요건', '커리큘럼', '모집요강', 'information'],
   anxiety: ['불안', '걱정', '막막', '초조', 'anxiety', 'anxious'],
   confidence: ['자신감', '자존감', 'confidence'],
   pressure: ['압박', '부담', '스트레스', 'pressure', 'stress'],
@@ -128,7 +128,13 @@ const detectThemes = (input: string): ThemeInsight[] => {
     keywordMap[theme.key].some((keyword) => lowerInput.includes(keyword.toLowerCase())),
   );
 
-  if (matched.some((theme) => theme.key === 'information')) {
+  const hasExplicitInformationNeed =
+    matched.some((theme) => theme.key === 'information') &&
+    ['정보', '자료', '출처', '공고', '조건', '요건', '커리큘럼', '모집요강', 'information'].some((keyword) =>
+      lowerInput.includes(keyword.toLowerCase()),
+    );
+
+  if (hasExplicitInformationNeed) {
     const contextualThemes = matched.filter((theme) =>
       ['employment', 'graduate', 'majorFit'].includes(theme.key),
     );
@@ -234,8 +240,8 @@ export function generateFollowUpResponse(
     `"${concern}"라고 말해준 내용을 기준으로 보면, ${joinInsights(
       themes.slice(0, 2).map((theme) => theme.emotional),
     )}`,
-    `${emotionalReflection(themes)} 감정을 단정하기보다 지금 확인할 수 있는 것과 아직 모르는 것을 나누면 부담이 줄어듭니다.`,
-    '완벽한 확신이 없어도 괜찮습니다. 오늘은 걱정되는 생각과 실제로 확인해야 할 사실을 분리하는 것부터 해보면 좋겠습니다.',
+    `${emotionalReflection(themes)} 지금 확인할 수 있는 것과 아직 모르는 것을 나누면 다음 질문이 더 분명해집니다.`,
+    '오늘은 바로 결론을 내리기보다 선택 기준과 확인해야 할 사실을 분리하는 것부터 해보면 좋겠습니다.',
   ];
   return responses[Math.min(turnCount, responses.length - 1)];
 }
