@@ -5,9 +5,8 @@ import CounselorPreviewStep from './components/CounselorPreviewStep';
 import MockChatStep from './components/MockChatStep';
 import StepIndicator from './components/StepIndicator';
 import UserInputStep from './components/UserInputStep';
-import { counselors } from './data/counselors';
-import { scheduleSlots, validateScheduleSlots } from './data/scheduleSlots';
 import type { ChatMessage, Counselor, Step } from './types';
+import { analyzeConcernSpecialty, getCounselorsForConcern } from './utils/concernAnalysis';
 import { generateFollowUpResponse, generateMockResponse } from './utils/mockResponses';
 
 const createMessageId = () => `${Date.now()}-${Math.random().toString(36).slice(2)}`;
@@ -20,25 +19,8 @@ export default function App() {
   const [selectedCounselor, setSelectedCounselor] = useState<Counselor | null>(null);
   const [mockChatMessages, setMockChatMessages] = useState<ChatMessage[]>([]);
   const [completed, setCompleted] = useState(false);
-  const selectedSlot = scheduleSlots.find(
-    (slot) => slot.date === selectedDate && slot.time === selectedTime,
-  );
-  const availableCounselorsForSlot = selectedSlot
-    ? selectedSlot.counselors
-        .map((assignment) =>
-          counselors.find(
-            (counselor) =>
-              counselor.id === assignment.counselorId &&
-              counselor.approachType === assignment.approachType,
-          ),
-        )
-        .filter((counselor): counselor is Counselor => Boolean(counselor))
-    : [];
-  const hasValidSlotCounselors =
-    validateScheduleSlots() &&
-    availableCounselorsForSlot.length === 2 &&
-    availableCounselorsForSlot.some((counselor) => counselor.approachType === 'practical') &&
-    availableCounselorsForSlot.some((counselor) => counselor.approachType === 'emotional');
+  const concernSpecialty = analyzeConcernSpecialty(userInput);
+  const recommendedCounselors = getCounselorsForConcern(userInput);
 
   const handleSelectCounselor = (counselor: Counselor) => {
     setSelectedCounselor(counselor);
@@ -134,7 +116,9 @@ export default function App() {
 
         {currentStep === 3 && (
           <CounselorPreviewStep
-            counselors={hasValidSlotCounselors ? availableCounselorsForSlot : []}
+            counselors={recommendedCounselors}
+            specialtyLabel={concernSpecialty.label}
+            specialtyReason={concernSpecialty.reason}
             userInput={userInput}
             onBack={() => setCurrentStep(2)}
             onSelect={handleSelectCounselor}

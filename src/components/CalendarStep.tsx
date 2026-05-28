@@ -51,7 +51,7 @@ export default function CalendarStep({
           <p className="text-sm font-bold text-seoulOrange">Step 1</p>
           <h2 className="mt-1 text-2xl font-bold text-ink">상담 가능한 일정을 선택하세요</h2>
           <p className="mt-2 text-sm text-slate-600">
-            모든 시간대에는 현실 점검형과 정서 공감형 상담사가 함께 배정되어 있습니다.
+            먼저 가능한 시간을 고른 뒤, 다음 단계에서 고민 내용을 바탕으로 전문 상담사를 추천합니다.
           </p>
         </div>
         <div className="rounded-2xl bg-seoulBlueSoft px-4 py-3 text-sm font-semibold text-seoulBlue">
@@ -156,7 +156,7 @@ export default function CalendarStep({
                 >
                   <span>{slot.label} {slot.time}</span>
                   <span className="mt-1 block text-xs font-semibold opacity-80">
-                    현실 점검형 + 정서 공감형
+                    상담 가능 시간
                   </span>
                 </button>
               ))

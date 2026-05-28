@@ -1,9 +1,11 @@
 export type Step = 1 | 2 | 3 | 4 | 5;
 export type CounselorApproachType = 'practical' | 'emotional';
+export type CounselorSpecialty = 'employmentGraduate' | 'employment' | 'graduate' | 'majorFit' | 'general';
 
 export interface Counselor {
   id: string;
   approachType: CounselorApproachType;
+  specialty: CounselorSpecialty;
   name: string;
   type: string;
   tags: string[];
@@ -23,11 +25,4 @@ export interface AvailableSlot {
   time: string;
 }
 
-export interface ScheduleSlotCounselor {
-  counselorId: string;
-  approachType: CounselorApproachType;
-}
-
-export interface ScheduleSlot extends AvailableSlot {
-  counselors: [ScheduleSlotCounselor, ScheduleSlotCounselor];
-}
+export type ScheduleSlot = AvailableSlot;

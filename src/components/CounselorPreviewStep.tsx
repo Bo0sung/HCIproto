@@ -2,6 +2,8 @@ import type { Counselor } from '../types';
 
 interface CounselorPreviewStepProps {
   counselors: Counselor[];
+  specialtyLabel: string;
+  specialtyReason: string;
   userInput: string;
   onBack: () => void;
   onSelect: (counselor: Counselor) => void;
@@ -62,6 +64,8 @@ const getCounselorVisual = (counselor: Counselor): CounselorVisual => {
 
 export default function CounselorPreviewStep({
   counselors,
+  specialtyLabel,
+  specialtyReason,
   userInput,
   onBack,
   onSelect,
@@ -71,10 +75,10 @@ export default function CounselorPreviewStep({
       <div className="flex flex-col justify-between gap-3 lg:flex-row lg:items-start">
         <div className="max-w-3xl">
           <p className="text-sm font-bold text-seoulOrange">Step 3</p>
-          <h2 className="mt-1 text-2xl font-bold text-ink">두 가지 상담 스타일을 비교해보세요</h2>
+          <h2 className="mt-1 text-2xl font-bold text-ink">고민 분야에 맞는 상담사를 비교해보세요</h2>
           <p className="mt-2 text-sm leading-6 text-slate-600">
-            준비 상태를 바로 점검하고 싶은지, 먼저 불안한 마음을 정리하고 싶은지 선택할 수
-            있도록 두 카드를 균형 있게 배치했습니다.
+            입력한 고민에서 중요한 분야를 추출해 해당 분야를 전문으로 하는 상담사 두 명을
+            추천합니다.
           </p>
         </div>
         <button
@@ -87,8 +91,18 @@ export default function CounselorPreviewStep({
       </div>
 
       <div className="mt-5 rounded-3xl border border-blue-100 bg-seoulBlueSoft p-4">
-        <p className="text-xs font-bold uppercase tracking-wide text-seoulBlue">입력한 고민 요약</p>
-        <p className="mt-2 text-sm leading-6 text-slate-700">{summarizeConcern(userInput)}</p>
+        <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wide text-seoulBlue">
+              추출된 상담 분야
+            </p>
+            <h3 className="mt-1 text-xl font-black text-ink">{specialtyLabel}</h3>
+            <p className="mt-2 text-sm leading-6 text-slate-700">{specialtyReason}</p>
+          </div>
+          <div className="rounded-2xl bg-white/80 px-4 py-3 text-sm leading-6 text-slate-700 md:max-w-md">
+            {summarizeConcern(userInput)}
+          </div>
+        </div>
       </div>
 
       <div className="mt-5 grid gap-5 lg:grid-cols-2">
