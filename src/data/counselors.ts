@@ -5,7 +5,7 @@ export const counselors: Counselor[] = [
     id: 'employment-graduate-practical',
     approachType: 'practical',
     specialty: 'employmentGraduate',
-    name: '한진로 상담사',
+    name: '김도현 상담사',
     type: '취업·대학원 현실 점검 전문가',
     tags: ['취업비교', '대학원진학', '준비상태점검', '선택기준'],
     description:
@@ -16,7 +16,7 @@ export const counselors: Counselor[] = [
     id: 'employment-graduate-emotional',
     approachType: 'emotional',
     specialty: 'employmentGraduate',
-    name: '최마음 상담사',
+    name: '이서연 상담사',
     type: '취업·대학원 정서 공감 전문가',
     tags: ['결정스트레스', '불안정리', '선택부담', '자기이해'],
     description:
@@ -27,7 +27,7 @@ export const counselors: Counselor[] = [
     id: 'employment-practical',
     approachType: 'practical',
     specialty: 'employment',
-    name: '박취업 상담사',
+    name: '박준호 상담사',
     type: '취업 준비 현실 점검 전문가',
     tags: ['이력서', '면접준비', '직무분석', '포트폴리오'],
     description:
@@ -38,7 +38,7 @@ export const counselors: Counselor[] = [
     id: 'employment-emotional',
     approachType: 'emotional',
     specialty: 'employment',
-    name: '이지원 상담사',
+    name: '정유진 상담사',
     type: '취업 불안 정서 공감 전문가',
     tags: ['취업불안', '압박감정리', '자신감회복', '결정지원'],
     description:
@@ -49,7 +49,7 @@ export const counselors: Counselor[] = [
     id: 'graduate-practical',
     approachType: 'practical',
     specialty: 'graduate',
-    name: '김진학 상담사',
+    name: '최민재 상담사',
     type: '대학원 진학 현실 점검 전문가',
     tags: ['연구실탐색', '교수컨택', '학점점검', '진학전략'],
     description:
@@ -60,7 +60,7 @@ export const counselors: Counselor[] = [
     id: 'graduate-emotional',
     approachType: 'emotional',
     specialty: 'graduate',
-    name: '윤성장 상담사',
+    name: '한지우 상담사',
     type: '대학원 진학 정서 공감 전문가',
     tags: ['진학불안', '연구흥미', '기대정리', '부담완화'],
     description:
@@ -71,7 +71,7 @@ export const counselors: Counselor[] = [
     id: 'major-fit-practical',
     approachType: 'practical',
     specialty: 'majorFit',
-    name: '정적성 상담사',
+    name: '윤태민 상담사',
     type: '전공·적성 현실 점검 전문가',
     tags: ['전공적합도', '직무후보', '수업경험', '활동분석'],
     description:
@@ -82,7 +82,7 @@ export const counselors: Counselor[] = [
     id: 'major-fit-emotional',
     approachType: 'emotional',
     specialty: 'majorFit',
-    name: '송이해 상담사',
+    name: '송하은 상담사',
     type: '전공·적성 정서 공감 전문가',
     tags: ['흥미탐색', '자기이해', '진로불안', '비교감완화'],
     description:
@@ -93,7 +93,7 @@ export const counselors: Counselor[] = [
     id: 'readiness-start-practical',
     approachType: 'practical',
     specialty: 'readinessStart',
-    name: '오시작 상담사',
+    name: '강현우 상담사',
     type: '첫 준비 단계 현실 점검 전문가',
     tags: ['첫단계설계', '우선순위', '준비목록', '작게시작'],
     description:
@@ -104,7 +104,7 @@ export const counselors: Counselor[] = [
     id: 'readiness-start-emotional',
     approachType: 'emotional',
     specialty: 'readinessStart',
-    name: '문시작 상담사',
+    name: '오수빈 상담사',
     type: '첫 준비 단계 정서 공감 전문가',
     tags: ['막막함정리', '시작부담', '자기비난완화', '작은시도'],
     description:
@@ -115,7 +115,7 @@ export const counselors: Counselor[] = [
     id: 'general-practical',
     approachType: 'practical',
     specialty: 'general',
-    name: '박현실 상담사',
+    name: '임성준 상담사',
     type: '일반 진로 현실 점검 전문가',
     tags: ['진로정리', '준비상태점검', '실행계획', '선택기준'],
     description:
@@ -126,7 +126,7 @@ export const counselors: Counselor[] = [
     id: 'general-emotional',
     approachType: 'emotional',
     specialty: 'general',
-    name: '이지해 상담사',
+    name: '문가영 상담사',
     type: '일반 진로 정서 공감 전문가',
     tags: ['마음정리', '불안완화', '자기이해', '결정지원'],
     description:
