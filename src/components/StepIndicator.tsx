@@ -1,18 +1,16 @@
-import type { Step } from '../types';
+import type { Step, StudyMode } from '../types';
 
 interface StepIndicatorProps {
   currentStep: Step;
+  mode: StudyMode;
 }
 
-const steps = [
-  '일정 선택',
-  '고민 입력',
-  '상담사 비교',
-  '모의 상담',
-  '신청 완료',
-] as const;
+const previewSteps = ['일정 선택', '고민 입력', '상담사 비교', '모의 상담', '신청 완료'] as const;
+const baselineSteps = ['일정 선택', '고민 입력', '상담사 선택', '신청 확인', '신청 완료'] as const;
 
-export default function StepIndicator({ currentStep }: StepIndicatorProps) {
+export default function StepIndicator({ currentStep, mode }: StepIndicatorProps) {
+  const steps = mode === 'preview' ? previewSteps : baselineSteps;
+
   return (
     <div className="rounded-3xl bg-white/85 p-4 shadow-soft ring-1 ring-slate-100">
       <div className="grid gap-3 sm:grid-cols-5">

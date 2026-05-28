@@ -1,17 +1,21 @@
 import { useState } from 'react';
+import BaselineCounselorStep from './components/BaselineCounselorStep';
+import BaselineRequestStep from './components/BaselineRequestStep';
 import CalendarStep from './components/CalendarStep';
 import CompleteStep from './components/CompleteStep';
 import CounselorPreviewStep from './components/CounselorPreviewStep';
 import MockChatStep from './components/MockChatStep';
 import StepIndicator from './components/StepIndicator';
+import StudyModeTabs from './components/StudyModeTabs';
 import UserInputStep from './components/UserInputStep';
-import type { ChatMessage, Counselor, Step } from './types';
+import type { ChatMessage, Counselor, Step, StudyMode } from './types';
 import { analyzeConcernSpecialty, getCounselorsForConcern } from './utils/concernAnalysis';
 import { generateFollowUpResponse, generateMockResponse } from './utils/mockResponses';
 
 const createMessageId = () => `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
 export default function App() {
+  const [studyMode, setStudyMode] = useState<StudyMode>('preview');
   const [currentStep, setCurrentStep] = useState<Step>(1);
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
@@ -22,20 +26,42 @@ export default function App() {
   const concernSpecialty = analyzeConcernSpecialty(userInput);
   const recommendedCounselors = getCounselorsForConcern(userInput);
 
+  const resetFlow = (nextMode = studyMode) => {
+    setCurrentStep(1);
+    setSelectedDate('');
+    setSelectedTime('');
+    setUserInput('');
+    setSelectedCounselor(null);
+    setMockChatMessages([]);
+    setCompleted(false);
+    setStudyMode(nextMode);
+  };
+
+  const handleChangeMode = (mode: StudyMode) => {
+    if (mode === studyMode) return;
+    resetFlow(mode);
+  };
+
   const handleSelectCounselor = (counselor: Counselor) => {
     setSelectedCounselor(counselor);
-    setMockChatMessages([
-      {
-        id: createMessageId(),
-        role: 'student',
-        content: userInput,
-      },
-      {
-        id: createMessageId(),
-        role: 'counselor',
-        content: generateMockResponse(counselor.id, userInput),
-      },
-    ]);
+
+    if (studyMode === 'preview') {
+      setMockChatMessages([
+        {
+          id: createMessageId(),
+          role: 'student',
+          content: userInput,
+        },
+        {
+          id: createMessageId(),
+          role: 'counselor',
+          content: generateMockResponse(counselor.id, userInput),
+        },
+      ]);
+    } else {
+      setMockChatMessages([]);
+    }
+
     setCurrentStep(4);
   };
 
@@ -63,20 +89,16 @@ export default function App() {
   };
 
   const handleRestart = () => {
-    setCurrentStep(1);
-    setSelectedDate('');
-    setSelectedTime('');
-    setUserInput('');
-    setSelectedCounselor(null);
-    setMockChatMessages([]);
-    setCompleted(false);
+    resetFlow();
   };
 
   return (
     <main className="min-h-screen px-4 py-6 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
+        <StudyModeTabs mode={studyMode} onChange={handleChangeMode} />
+
         <div className="mb-6">
-          <StepIndicator currentStep={currentStep} />
+          <StepIndicator currentStep={currentStep} mode={studyMode} />
         </div>
 
         {currentStep === 1 && (
@@ -98,7 +120,7 @@ export default function App() {
           />
         )}
 
-        {currentStep === 3 && (
+        {currentStep === 3 && studyMode === 'preview' && (
           <CounselorPreviewStep
             counselors={recommendedCounselors}
             specialtyLabel={concernSpecialty.label}
@@ -109,12 +131,31 @@ export default function App() {
           />
         )}
 
-        {currentStep === 4 && selectedCounselor && (
+        {currentStep === 3 && studyMode === 'baseline' && (
+          <BaselineCounselorStep
+            counselors={recommendedCounselors}
+            onBack={() => setCurrentStep(2)}
+            onSelect={handleSelectCounselor}
+          />
+        )}
+
+        {currentStep === 4 && studyMode === 'preview' && selectedCounselor && (
           <MockChatStep
             counselor={selectedCounselor}
             messages={mockChatMessages}
             onBack={() => setCurrentStep(3)}
             onAddTurn={handleAddTurn}
+            onSubmit={handleSubmit}
+          />
+        )}
+
+        {currentStep === 4 && studyMode === 'baseline' && selectedCounselor && (
+          <BaselineRequestStep
+            selectedDate={selectedDate}
+            selectedTime={selectedTime}
+            counselor={selectedCounselor}
+            userInput={userInput}
+            onBack={() => setCurrentStep(3)}
             onSubmit={handleSubmit}
           />
         )}
