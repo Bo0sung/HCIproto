@@ -47,7 +47,7 @@ export default function MockChatStep({
       </div>
 
       <div className="mt-6 rounded-3xl border border-slate-200 bg-slate-100 p-3 sm:p-4">
-        <div className="max-h-[430px] space-y-4 overflow-y-auto pr-1">
+        <div className="max-h-[430px] space-y-5 overflow-y-auto pr-1">
           {messages.map((chatMessage) => {
             const isStudent = chatMessage.role === 'student';
 
@@ -57,7 +57,7 @@ export default function MockChatStep({
                 className={`flex ${isStudent ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`max-w-[90%] rounded-3xl px-5 py-4 shadow-sm md:max-w-[76%] ${
+                  className={`max-w-[88%] rounded-3xl px-5 py-4 shadow-sm md:max-w-[68%] lg:max-w-[60%] ${
                     isStudent
                       ? 'bg-seoulBlue text-white'
                       : 'border border-blue-100 border-l-4 border-l-seoulBlue bg-white text-slate-800 ring-1 ring-blue-50'
@@ -76,7 +76,7 @@ export default function MockChatStep({
                     className={`whitespace-pre-line ${
                       isStudent
                         ? 'text-sm font-semibold leading-6'
-                        : 'text-[15px] font-bold leading-7 text-slate-800'
+                        : 'text-[15px] font-bold leading-8 text-slate-800'
                     }`}
                   >
                     {chatMessage.content}
