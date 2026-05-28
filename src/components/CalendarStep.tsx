@@ -8,15 +8,12 @@ interface CalendarStepProps {
   onNext: () => void;
 }
 
-const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
-const firstDayOffset = 5;
+const weekDays = ['월', '화', '수', '목', '금'];
 const daysInMonth = 31;
 
 const getSlotsForDate = (date: string) => scheduleSlots.filter((slot) => slot.date === date);
 
-type CalendarCell =
-  | { key: string; kind: 'empty' }
-  | { key: string; kind: 'day'; day: number; date: string };
+type CalendarCell = { key: string; kind: 'day'; day: number; date: string };
 
 export default function CalendarStep({
   selectedDate,
@@ -25,21 +22,22 @@ export default function CalendarStep({
   onSelectTime,
   onNext,
 }: CalendarStepProps) {
-  const calendarCells: CalendarCell[] = [
-    ...Array.from({ length: firstDayOffset }, (_, index) => ({
-      key: `empty-${index}`,
-      kind: 'empty' as const,
-    })),
-    ...Array.from({ length: daysInMonth }, (_, index) => {
-      const day = index + 1;
-      return {
-        key: `day-${day}`,
-        kind: 'day' as const,
-        day,
-        date: `2026-05-${String(day).padStart(2, '0')}`,
-      };
-    }),
-  ];
+  const calendarCells = Array.from({ length: daysInMonth }, (_, index): CalendarCell | null => {
+    const day = index + 1;
+    const date = new Date(2026, 4, day);
+    const dayOfWeek = date.getDay();
+
+    if (dayOfWeek === 0 || dayOfWeek === 6) {
+      return null;
+    }
+
+    return {
+      key: `day-${day}`,
+      kind: 'day' as const,
+      day,
+      date: `2026-05-${String(day).padStart(2, '0')}`,
+    };
+  }).filter((cell): cell is CalendarCell => cell !== null);
 
   const selectedSlots = selectedDate ? getSlotsForDate(selectedDate) : [];
   const canContinue = Boolean(selectedDate && selectedTime);
@@ -51,7 +49,7 @@ export default function CalendarStep({
           <p className="text-sm font-bold text-seoulOrange">Step 1</p>
           <h2 className="mt-1 text-2xl font-bold text-ink">상담 가능한 일정을 선택하세요</h2>
           <p className="mt-2 text-sm text-slate-600">
-            먼저 가능한 시간을 고른 뒤, 다음 단계에서 고민 내용을 바탕으로 전문 상담사를 추천합니다.
+            평일 날짜만 표시됩니다. 기본 상담 시간은 10시, 2시, 4시이며 일부 날짜에는 오전 시간이 추가됩니다.
           </p>
         </div>
         <div className="rounded-2xl bg-seoulBlueSoft px-4 py-3 text-sm font-semibold text-seoulBlue">
@@ -61,74 +59,62 @@ export default function CalendarStep({
 
       <div className="grid gap-6 lg:grid-cols-[1.45fr_0.75fr]">
         <div>
-          <div className="mb-2 grid grid-cols-7 gap-2 text-center text-xs font-bold text-slate-500">
+          <div className="mb-2 grid grid-cols-5 gap-2 text-center text-xs font-bold text-slate-500">
             {weekDays.map((day) => (
               <div key={day}>{day}</div>
             ))}
           </div>
-          <div className="grid grid-cols-7 gap-2">
+          <div className="grid grid-cols-5 gap-2">
             {calendarCells.map((cell) => {
-              if (cell.kind === 'empty') {
-                return <div key={cell.key} className="min-h-[92px] rounded-2xl" />;
-              }
-
               const slots = getSlotsForDate(cell.date);
-              const isAvailable = slots.length > 0;
               const isSelected = selectedDate === cell.date;
-              const visibleTimes = slots.slice(0, 2).map((slot) => slot.time);
+              const visibleTimes = slots.slice(0, 3).map((slot) => slot.time);
 
               return (
                 <button
                   key={cell.key}
                   type="button"
-                  disabled={!isAvailable}
                   onClick={() => {
                     onSelectDate(cell.date);
                     onSelectTime(slots[0]?.time ?? '');
                   }}
-                  className={`min-h-[92px] rounded-2xl border p-2 text-left transition ${
+                  className={`min-h-[104px] rounded-2xl border p-2 text-left transition ${
                     isSelected
                       ? 'border-seoulBlue bg-seoulBlue text-white shadow-md'
-                      : isAvailable
-                        ? 'border-blue-200 bg-white text-ink hover:border-seoulBlue hover:bg-seoulBlueSoft hover:shadow-md'
-                        : 'cursor-not-allowed border-slate-100 bg-slate-50 text-slate-300'
+                      : 'border-blue-200 bg-white text-ink hover:border-seoulBlue hover:bg-seoulBlueSoft hover:shadow-md'
                   }`}
                 >
                   <span className="block text-sm font-bold">{cell.day}</span>
-                  {isAvailable ? (
-                    <div className="mt-2 space-y-1">
-                      <span
-                        className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                          isSelected ? 'bg-white/20 text-white' : 'bg-seoulOrangeSoft text-seoulOrange'
-                        }`}
-                      >
-                        {slots.length}개 가능
-                      </span>
-                      <div className="flex flex-wrap gap-1">
-                        {visibleTimes.map((time) => (
-                          <span
-                            key={time}
-                            className={`rounded-md px-1.5 py-0.5 text-[10px] font-semibold ${
-                              isSelected ? 'bg-white/15 text-white' : 'bg-slate-100 text-slate-600'
-                            }`}
-                          >
-                            {time}
-                          </span>
-                        ))}
-                        {slots.length > 2 && (
-                          <span
-                            className={`rounded-md px-1.5 py-0.5 text-[10px] font-semibold ${
-                              isSelected ? 'bg-white/15 text-white' : 'bg-slate-100 text-slate-500'
-                            }`}
-                          >
-                            +{slots.length - 2}
-                          </span>
-                        )}
-                      </div>
+                  <div className="mt-2 space-y-1">
+                    <span
+                      className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                        isSelected ? 'bg-white/20 text-white' : 'bg-seoulOrangeSoft text-seoulOrange'
+                      }`}
+                    >
+                      {slots.length}개 가능
+                    </span>
+                    <div className="flex flex-wrap gap-1">
+                      {visibleTimes.map((time) => (
+                        <span
+                          key={time}
+                          className={`rounded-md px-1.5 py-0.5 text-[10px] font-semibold ${
+                            isSelected ? 'bg-white/15 text-white' : 'bg-slate-100 text-slate-600'
+                          }`}
+                        >
+                          {time}
+                        </span>
+                      ))}
+                      {slots.length > 3 && (
+                        <span
+                          className={`rounded-md px-1.5 py-0.5 text-[10px] font-semibold ${
+                            isSelected ? 'bg-white/15 text-white' : 'bg-slate-100 text-slate-500'
+                          }`}
+                        >
+                          +{slots.length - 3}
+                        </span>
+                      )}
                     </div>
-                  ) : (
-                    <span className="mt-3 block text-[11px] font-semibold">예약 없음</span>
-                  )}
+                  </div>
                 </button>
               );
             })}

@@ -5,7 +5,34 @@ interface UserInputStepProps {
   onNext: () => void;
 }
 
-const promptHints = ['학년/전공', '고민 중인 선택지', '가장 불안한 점'];
+const promptHints = ['학년/전공', '고민 중인 선택지', '가장 막히는 지점'];
+
+const concernExamples = [
+  {
+    label: '취업 vs 대학원',
+    text: '취업을 해야 할지 대학원에 진학해야 할지 고민 중입니다.',
+  },
+  {
+    label: '첫 준비 단계',
+    text: '아직 해놓은 게 없고 뭐부터 해야 할지 모르겠어요.',
+  },
+  {
+    label: '취업 준비',
+    text: '취업 준비를 해야 하는데 이력서와 포트폴리오를 어떻게 시작해야 할지 모르겠습니다.',
+  },
+  {
+    label: '대학원 진학',
+    text: '대학원 진학을 고민 중인데 연구실 선택과 교수님 컨택이 막막합니다.',
+  },
+  {
+    label: '전공·적성',
+    text: '전공이 저와 맞는지 모르겠고 어떤 분야에 흥미가 있는지도 잘 모르겠습니다.',
+  },
+  {
+    label: '정보 부족',
+    text: '취업에 대한 정보와 필요한 준비 조건이 부족한 것 같습니다.',
+  },
+];
 
 export default function UserInputStep({ userInput, onChange, onBack, onNext }: UserInputStepProps) {
   const trimmedLength = userInput.trim().length;
@@ -17,8 +44,28 @@ export default function UserInputStep({ userInput, onChange, onBack, onNext }: U
         <p className="text-sm font-bold text-seoulOrange">Step 2</p>
         <h2 className="mt-1 text-2xl font-bold text-ink">현재 고민을 짧게 알려주세요</h2>
         <p className="mt-2 text-sm leading-6 text-slate-600">
-          완성된 문장일 필요는 없습니다. 상담사 스타일을 비교할 수 있을 만큼만 적어도 충분합니다.
+          직접 입력해도 되고, 아래 고민 index 버튼을 눌러 예시 문장을 선택해도 됩니다.
         </p>
+      </div>
+
+      <div className="mt-5 rounded-3xl border border-blue-100 bg-seoulBlueSoft p-4">
+        <p className="text-xs font-bold uppercase tracking-wide text-seoulBlue">고민 index 선택</p>
+        <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+          {concernExamples.map((example) => (
+            <button
+              key={example.label}
+              type="button"
+              onClick={() => onChange(example.text)}
+              className={`rounded-2xl border px-4 py-3 text-left text-sm font-bold transition ${
+                userInput === example.text
+                  ? 'border-seoulBlue bg-seoulBlue text-white shadow-md'
+                  : 'border-blue-100 bg-white text-slate-700 hover:border-seoulBlue hover:text-seoulBlue'
+              }`}
+            >
+              {example.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="mt-5 rounded-3xl border border-slate-200 bg-slate-50 p-4">
@@ -42,7 +89,7 @@ export default function UserInputStep({ userInput, onChange, onBack, onNext }: U
         />
 
         <div className="mt-3 flex flex-col gap-2 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
-          <p>한두 문장만 입력해도 다음 단계에서 상담사별 응답을 비교할 수 있습니다.</p>
+          <p>선택한 예시 문장은 자유롭게 수정할 수 있습니다.</p>
           <p className={`font-bold ${trimmedLength > 0 ? 'text-seoulBlue' : 'text-slate-400'}`}>
             {trimmedLength}자 입력됨
           </p>
@@ -63,7 +110,7 @@ export default function UserInputStep({ userInput, onChange, onBack, onNext }: U
           onClick={onNext}
           className="rounded-2xl bg-seoulBlue px-6 py-3 font-bold text-white shadow-md transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-300"
         >
-          상담사 스타일 비교하기
+          상담사 비교하기
         </button>
       </div>
     </section>
