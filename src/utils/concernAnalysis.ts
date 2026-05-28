@@ -12,9 +12,33 @@ const hasAny = (input: string, keywords: string[]) =>
 
 export const analyzeConcernSpecialty = (userInput: string): ConcernSpecialtyInfo => {
   const input = userInput.toLowerCase();
+  const hasReadinessStart = hasAny(input, [
+    '한게 없',
+    '한 게 없',
+    '해놓은게 없',
+    '해 놓은 게 없',
+    '해둔게 없',
+    '해 둔 게 없',
+    '준비한게 없',
+    '준비한 게 없',
+    '뭐부터',
+    '무엇부터',
+    '어디서부터',
+    '시작',
+    '첫 단계',
+    '막막',
+  ]);
   const hasEmployment = hasAny(input, ['취업', '직무', '회사', '채용', '면접', '이력서', '인턴', '포트폴리오']);
   const hasGraduate = hasAny(input, ['대학원', '진학', '석사', '연구실', '교수', '연구']);
   const hasMajorFit = hasAny(input, ['전공', '적성', '흥미', '분야', '맞는지', '진로방향']);
+
+  if (hasReadinessStart) {
+    return {
+      specialty: 'readinessStart',
+      label: '첫 준비 단계 상담',
+      reason: '입력한 고민에서 “해놓은 게 없음”, “뭐부터 해야 할지 모름”, “막막함”과 같은 시작 단계 단서가 감지되었습니다.',
+    };
+  }
 
   if (hasEmployment && hasGraduate) {
     return {

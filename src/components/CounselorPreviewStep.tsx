@@ -23,7 +23,7 @@ interface CounselorVisual {
 
 const summarizeConcern = (input: string) => {
   const compact = input.trim().replace(/\s+/g, ' ');
-  return compact.length > 80 ? `${compact.slice(0, 80)}...` : compact;
+  return compact.length > 90 ? `${compact.slice(0, 90)}...` : compact;
 };
 
 const getCounselorVisual = (counselor: Counselor): CounselorVisual => {
@@ -34,13 +34,13 @@ const getCounselorVisual = (counselor: Counselor): CounselorVisual => {
       avatarClass: 'bg-blue-100 text-blue-700',
       badgeClass: 'bg-blue-100 text-blue-700',
       buttonClass: 'bg-seoulBlue hover:bg-blue-700',
-      summary: '현재 준비 상태를 객관적으로 점검하고, 바로 보완할 과제를 정리합니다.',
-      keyQuestion: 'What should I prepare right now?',
-      keyPhrase: '현실적인 준비 상태 점검',
+      summary: '현재 상태를 항목별로 점검하고, 가장 먼저 할 수 있는 준비 과제를 정리합니다.',
+      keyQuestion: 'What should I prepare first?',
+      keyPhrase: '현실적인 첫 단계 점검',
       previewLines: [
-        '학점, 포트폴리오, 프로젝트 경험을 체크합니다.',
-        '취업과 대학원 준비 조건을 항목별로 비교합니다.',
-        '이번 주에 보완할 구체적인 과제를 정합니다.',
+        '현재 가진 경험과 비어 있는 준비를 나눕니다.',
+        '이번 주에 시작할 수 있는 작은 행동을 정합니다.',
+        '선택지를 기준표로 비교해 다음 단계를 좁힙니다.',
       ],
     };
   }
@@ -51,13 +51,13 @@ const getCounselorVisual = (counselor: Counselor): CounselorVisual => {
     avatarClass: 'bg-orange-100 text-orange-700',
     badgeClass: 'bg-orange-100 text-orange-700',
     buttonClass: 'bg-seoulOrange hover:bg-orange-500',
-    summary: '불안과 압박감을 먼저 다루고, 왜 선택이 어렵게 느껴지는지 함께 살펴봅니다.',
-    keyQuestion: 'Why does this feel difficult for me right now?',
-    keyPhrase: '불안한 마음부터 정리',
+    summary: '막막함과 선택 부담을 낮추고, 왜 시작이 어렵게 느껴지는지 함께 살펴봅니다.',
+    keyQuestion: 'Why does starting feel difficult?',
+    keyPhrase: '막막한 마음부터 정리',
     previewLines: [
-      '지금의 불안과 자신감 저하를 자연스럽게 인정합니다.',
-      '실패에 대한 두려움과 선택 압박을 천천히 풀어봅니다.',
-      '나에게 맞는 선택 기준을 부드럽게 찾아갑니다.',
+      '지금 막히는 지점을 차분히 분리합니다.',
+      '자기비난보다 시작 부담을 낮추는 데 집중합니다.',
+      '내가 감당 가능한 속도로 첫 시도를 정합니다.',
     ],
   };
 };
@@ -77,7 +77,7 @@ export default function CounselorPreviewStep({
           <p className="text-sm font-bold text-seoulOrange">Step 3</p>
           <h2 className="mt-1 text-2xl font-bold text-ink">고민 분야에 맞는 상담사를 비교해보세요</h2>
           <p className="mt-2 text-sm leading-6 text-slate-600">
-            입력한 고민에서 중요한 분야를 추출해 해당 분야를 전문으로 하는 상담사 두 명을
+            입력한 고민에서 핵심 분야를 추출하고, 해당 분야를 전문으로 하는 두 상담사를
             추천합니다.
           </p>
         </div>
@@ -90,17 +90,19 @@ export default function CounselorPreviewStep({
         </button>
       </div>
 
-      <div className="mt-5 rounded-3xl border border-blue-100 bg-seoulBlueSoft p-4">
-        <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-wide text-seoulBlue">
-              추출된 상담 분야
-            </p>
-            <h3 className="mt-1 text-xl font-black text-ink">{specialtyLabel}</h3>
+      <div className="mt-5 overflow-hidden rounded-3xl border border-seoulBlue bg-white shadow-sm">
+        <div className="bg-seoulBlue px-5 py-3 text-white">
+          <p className="text-xs font-bold uppercase tracking-wide opacity-85">추천 상담 분야</p>
+          <h3 className="mt-1 text-2xl font-black">{specialtyLabel}</h3>
+        </div>
+        <div className="grid gap-0 md:grid-cols-[1fr_1fr]">
+          <div className="border-b border-blue-100 bg-seoulBlueSoft p-5 md:border-b-0 md:border-r">
+            <p className="text-xs font-bold text-seoulBlue">추출 근거</p>
             <p className="mt-2 text-sm leading-6 text-slate-700">{specialtyReason}</p>
           </div>
-          <div className="rounded-2xl bg-white/80 px-4 py-3 text-sm leading-6 text-slate-700 md:max-w-md">
-            {summarizeConcern(userInput)}
+          <div className="bg-white p-5">
+            <p className="text-xs font-bold text-slate-500">입력한 고민</p>
+            <p className="mt-2 text-sm leading-6 text-slate-700">{summarizeConcern(userInput)}</p>
           </div>
         </div>
       </div>

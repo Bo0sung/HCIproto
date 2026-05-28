@@ -75,22 +75,6 @@ export default function App() {
   return (
     <main className="min-h-screen px-4 py-6 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
-        <header className="mb-6 rounded-3xl bg-white/90 p-6 shadow-soft ring-1 ring-slate-100">
-          <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
-            <div>
-              <p className="text-sm font-bold uppercase tracking-[0.18em] text-seoulOrange">
-                SeoulTech Career Match
-              </p>
-              <h1 className="mt-2 text-4xl font-black text-ink sm:text-5xl">과기대 진로 매치</h1>
-              <p className="mt-2 text-lg font-semibold text-seoulBlue">SeoulTech Career Match</p>
-            </div>
-            <div className="max-w-xl rounded-3xl bg-seoulOrangeSoft p-5 text-sm leading-6 text-slate-700">
-              진로 고민을 입력하고 상담사별 응답 스타일을 미리 경험한 뒤, 가장 잘 맞는 상담사를
-              선택하는 커리어 상담 매칭 프로토타입입니다.
-            </div>
-          </div>
-        </header>
-
         <div className="mb-6">
           <StepIndicator currentStep={currentStep} />
         </div>

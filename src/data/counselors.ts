@@ -90,6 +90,28 @@ export const counselors: Counselor[] = [
     accentClass: 'border-orange-200 bg-orange-50',
   },
   {
+    id: 'readiness-start-practical',
+    approachType: 'practical',
+    specialty: 'readinessStart',
+    name: '오시작 상담사',
+    type: '첫 준비 단계 현실 점검 전문가',
+    tags: ['첫단계설계', '우선순위', '준비목록', '작게시작'],
+    description:
+      '아직 해놓은 것이 없다고 느낄 때, 지금 가진 것과 없는 것을 나누고 첫 번째 준비 행동을 작게 정합니다.',
+    accentClass: 'border-blue-200 bg-blue-50',
+  },
+  {
+    id: 'readiness-start-emotional',
+    approachType: 'emotional',
+    specialty: 'readinessStart',
+    name: '문시작 상담사',
+    type: '첫 준비 단계 정서 공감 전문가',
+    tags: ['막막함정리', '시작부담', '자기비난완화', '작은시도'],
+    description:
+      '무엇부터 해야 할지 모를 때 생기는 막막함을 낮추고, 시작을 방해하는 부담을 함께 정리합니다.',
+    accentClass: 'border-orange-200 bg-orange-50',
+  },
+  {
     id: 'general-practical',
     approachType: 'practical',
     specialty: 'general',

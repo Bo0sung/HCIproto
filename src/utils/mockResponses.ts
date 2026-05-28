@@ -8,6 +8,7 @@ type ThemeKey =
   | 'graduate'
   | 'employment'
   | 'information'
+  | 'readinessStart'
   | 'anxiety'
   | 'confidence'
   | 'pressure'
@@ -22,6 +23,11 @@ interface ThemeInsight {
 }
 
 const themeInsights: ThemeInsight[] = [
+  {
+    key: 'readinessStart',
+    practical: '아직 준비가 부족하다고 느껴진다면, 지금 가진 것과 처음 시작할 수 있는 행동을 나눠보겠습니다.',
+    emotional: '무엇부터 해야 할지 막막할 때는 시작 자체가 크게 느껴질 수 있으니 부담을 작게 나눠보겠습니다.',
+  },
   {
     key: 'information',
     practical: '필요한 정보, 확인할 출처, 질문할 사람을 나눠서 채워보겠습니다.',
@@ -106,10 +112,25 @@ const keywordMap: Record<ThemeKey, string[]> = {
   internship: ['인턴', 'intern', 'internship', '현장실습'],
   resume: ['이력서', '자소서', 'resume', 'cv', 'cover letter'],
   interview: ['면접', 'interview'],
-  graduate: ['대학원', '석사', '연구실', '교수님', 'graduate'],
+  graduate: ['대학원', '진학', '석사', '연구실', '교수님', 'graduate'],
   employment: ['취업', '직무', '회사', '채용', 'employment', 'job'],
   information: ['정보', '자료', '출처', '공고', '조건', '요건', '커리큘럼', '모집요강', 'information'],
-  anxiety: ['불안', '걱정', '막막', '초조', 'anxiety', 'anxious'],
+  readinessStart: [
+    '한게 없',
+    '한 게 없',
+    '해놓은게 없',
+    '해 놓은 게 없',
+    '해둔게 없',
+    '해 둔 게 없',
+    '준비한게 없',
+    '준비한 게 없',
+    '뭐부터',
+    '무엇부터',
+    '어디서부터',
+    '첫 단계',
+    '막막',
+  ],
+  anxiety: ['불안', '걱정', '초조', 'anxiety', 'anxious'],
   confidence: ['자신감', '자존감', 'confidence'],
   pressure: ['압박', '부담', '스트레스', 'pressure', 'stress'],
   failure: ['실패', '떨어질', '탈락', 'fear', 'fail'],
@@ -128,17 +149,15 @@ const detectThemes = (input: string): ThemeInsight[] => {
     keywordMap[theme.key].some((keyword) => lowerInput.includes(keyword.toLowerCase())),
   );
 
-  const hasExplicitInformationNeed =
-    matched.some((theme) => theme.key === 'information') &&
-    ['정보', '자료', '출처', '공고', '조건', '요건', '커리큘럼', '모집요강', 'information'].some((keyword) =>
-      lowerInput.includes(keyword.toLowerCase()),
-    );
+  if (matched.some((theme) => theme.key === 'readinessStart')) {
+    return themeInsights.filter((theme) => theme.key === 'readinessStart');
+  }
 
-  if (hasExplicitInformationNeed) {
+  if (matched.some((theme) => theme.key === 'information')) {
     const contextualThemes = matched.filter((theme) =>
       ['employment', 'graduate', 'majorFit'].includes(theme.key),
     );
-    return [themeInsights[0], ...contextualThemes].slice(0, 3);
+    return [themeInsights.find((theme) => theme.key === 'information')!, ...contextualThemes].slice(0, 3);
   }
 
   if (matched.length > 0) {
@@ -152,6 +171,10 @@ const joinInsights = (insights: string[]) => insights.join(' ');
 
 const practicalNextStep = (themes: ThemeInsight[]) => {
   const keys = themes.map((theme) => theme.key);
+
+  if (keys.includes('readinessStart')) {
+    return '다음 단계는 15분 안에 할 수 있는 첫 행동 하나를 정하는 것입니다. 예를 들면 관심 직무 1개 검색, 이력서 빈 문서 만들기, 상담 질문 3개 적기입니다.';
+  }
 
   if (keys.includes('information')) {
     return '다음 단계는 필요한 정보 3가지를 적고, 학교 상담센터, 학과 선배, 채용 공고처럼 확인할 출처를 하나씩 연결하는 것입니다.';
@@ -178,6 +201,10 @@ const practicalNextStep = (themes: ThemeInsight[]) => {
 
 const emotionalReflection = (themes: ThemeInsight[]) => {
   const keys = themes.map((theme) => theme.key);
+
+  if (keys.includes('readinessStart')) {
+    return '오늘은 많이 해내야 한다는 기준보다, 시작을 작게 만드는 기준을 먼저 세워보면 좋겠습니다.';
+  }
 
   if (keys.includes('information')) {
     return '오늘은 부족한 정보를 확인 가능한 질문으로 바꾸는 것부터 시작해보면 좋겠습니다.';
@@ -229,7 +256,7 @@ export function generateFollowUpResponse(
     const responses = [
       `"${concern}" 부분은 준비도 기준으로 다시 나눠보겠습니다. ${joinInsights(
         themes.slice(0, 2).map((theme) => theme.practical),
-      )} 지금 가진 자료, 부족한 정보, 이번 주에 확인할 출처를 각각 하나씩 적어보세요.`,
+      )} 지금 가진 것, 없는 것, 이번 주에 해볼 첫 행동을 각각 하나씩 적어보세요.`,
       `${practicalNextStep(themes)} 범위를 크게 잡기보다 30분 안에 시작할 수 있는 행동으로 줄이는 것이 좋습니다.`,
       '이제 체크리스트를 업데이트하면 됩니다. 확인한 정보와 아직 모르는 정보를 구분하면 다음 선택이 더 현실적으로 보입니다.',
     ];
