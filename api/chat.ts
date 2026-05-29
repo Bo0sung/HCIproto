@@ -58,8 +58,19 @@ const readRequestBody = async (req: any) => {
 };
 
 export default async function handler(req: any, res: any) {
+  if (req.method === 'GET') {
+    return res.status(200).json({
+      ok: true,
+      route: '/api/chat',
+      hasOpenAiKey: Boolean(getApiKey()),
+      acceptedEnvNames: ['OPENAI_API_KEY', 'OPEN_API_KEY'],
+      model: MODEL,
+      timestamp: new Date().toISOString(),
+    });
+  }
+
   if (req.method !== 'POST') {
-    res.setHeader('Allow', 'POST');
+    res.setHeader('Allow', 'GET, POST');
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
