@@ -15,6 +15,7 @@ import { generateFollowUpResponse, generateMockResponse } from './utils/mockResp
 
 const createMessageId = () => `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 const MAX_FOLLOW_UP_TURNS = 3;
+const TYPING_INTERVAL_MS = 12;
 
 export default function App() {
   const [studyMode, setStudyMode] = useState<StudyMode>('preview');
@@ -47,6 +48,32 @@ export default function App() {
     resetFlow(mode);
   };
 
+  const revealCounselorMessage = async (messageId: string, content: string) => {
+    setMockChatMessages((messages) =>
+      messages.map((message) =>
+        message.id === messageId ? { ...message, content: '', isTyping: true } : message,
+      ),
+    );
+
+    for (let index = 1; index <= content.length; index += 1) {
+      const visibleText = content.slice(0, index);
+      setMockChatMessages((messages) =>
+        messages.map((message) =>
+          message.id === messageId ? { ...message, content: visibleText, isTyping: true } : message,
+        ),
+      );
+      await new Promise((resolve) => {
+        window.setTimeout(resolve, TYPING_INTERVAL_MS);
+      });
+    }
+
+    setMockChatMessages((messages) =>
+      messages.map((message) =>
+        message.id === messageId ? { ...message, content, isTyping: false } : message,
+      ),
+    );
+  };
+
   const handleSelectCounselor = async (counselor: Counselor) => {
     setSelectedCounselor(counselor);
 
@@ -60,10 +87,10 @@ export default function App() {
         id: createMessageId(),
         role: 'counselor',
         content: '상담사 응답을 생성하고 있습니다...',
+        isTyping: true,
       };
-      const initialMessages = [studentMessage, loadingMessage];
 
-      setMockChatMessages(initialMessages);
+      setMockChatMessages([studentMessage, loadingMessage]);
       setCurrentStep(4);
       setIsGeneratingResponse(true);
 
@@ -75,19 +102,9 @@ export default function App() {
           turnCount: 0,
           messages: [studentMessage],
         });
-        setMockChatMessages((messages) =>
-          messages.map((message) =>
-            message.id === loadingMessage.id ? { ...message, content: reply } : message,
-          ),
-        );
+        await revealCounselorMessage(loadingMessage.id, reply);
       } catch {
-        setMockChatMessages((messages) =>
-          messages.map((message) =>
-            message.id === loadingMessage.id
-              ? { ...message, content: generateMockResponse(counselor.id, userInput) }
-              : message,
-          ),
-        );
+        await revealCounselorMessage(loadingMessage.id, generateMockResponse(counselor.id, userInput));
       } finally {
         setIsGeneratingResponse(false);
       }
@@ -111,6 +128,7 @@ export default function App() {
       id: createMessageId(),
       role: 'counselor',
       content: '상담사 응답을 생성하고 있습니다...',
+      isTyping: true,
     };
 
     const nextMessages = [...mockChatMessages, studentMessage, loadingMessage];
@@ -125,19 +143,11 @@ export default function App() {
         turnCount: turnCount + 1,
         messages: nextMessages.filter((item) => item.id !== loadingMessage.id),
       });
-      setMockChatMessages((messages) =>
-        messages.map((item) => (item.id === loadingMessage.id ? { ...item, content: reply } : item)),
-      );
+      await revealCounselorMessage(loadingMessage.id, reply);
     } catch {
-      setMockChatMessages((messages) =>
-        messages.map((item) =>
-          item.id === loadingMessage.id
-            ? {
-                ...item,
-                content: generateFollowUpResponse(selectedCounselor.id, message, turnCount),
-              }
-            : item,
-        ),
+      await revealCounselorMessage(
+        loadingMessage.id,
+        generateFollowUpResponse(selectedCounselor.id, message, turnCount),
       );
     } finally {
       setIsGeneratingResponse(false);

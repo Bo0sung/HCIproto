@@ -24,6 +24,7 @@ export interface ChatMessage {
   id: string;
   role: 'student' | 'counselor';
   content: string;
+  isTyping?: boolean;
 }
 
 export interface AvailableSlot {

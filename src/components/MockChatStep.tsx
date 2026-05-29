@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { ChatMessage, Counselor } from '../types';
 
 interface MockChatStepProps {
@@ -23,8 +23,19 @@ export default function MockChatStep({
   onSubmit,
 }: MockChatStepProps) {
   const [message, setMessage] = useState('');
+  const chatScrollRef = useRef<HTMLDivElement | null>(null);
   const hasRemainingTurns = followUpTurns < maxFollowUpTurns;
   const canContinue = message.trim().length > 0 && hasRemainingTurns && !isGenerating;
+
+  useEffect(() => {
+    const scrollContainer = chatScrollRef.current;
+    if (!scrollContainer) return;
+
+    scrollContainer.scrollTo({
+      top: scrollContainer.scrollHeight,
+      behavior: 'smooth',
+    });
+  }, [messages]);
 
   const handleAddTurn = async () => {
     if (!canContinue) return;
@@ -57,7 +68,7 @@ export default function MockChatStep({
       </div>
 
       <div className="mt-6 rounded-3xl border border-slate-200 bg-slate-100 p-3 sm:p-4">
-        <div className="max-h-[430px] space-y-5 overflow-y-auto pr-1">
+        <div ref={chatScrollRef} className="max-h-[430px] space-y-5 overflow-y-auto pr-1">
           {messages.map((chatMessage) => {
             const isStudent = chatMessage.role === 'student';
 
@@ -90,6 +101,9 @@ export default function MockChatStep({
                     }`}
                   >
                     {chatMessage.content}
+                    {chatMessage.isTyping && (
+                      <span className="ml-1 inline-block h-4 w-1 translate-y-0.5 animate-pulse rounded-full bg-seoulBlue" />
+                    )}
                   </p>
                 </div>
               </div>
