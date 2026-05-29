@@ -1,6 +1,14 @@
 # SeoulTech Career Match
 
-React + TypeScript + Vite prototype for an HCI career counseling matching flow. The app is frontend-only and uses local mock responses. It does not use a backend, database, real LLM API, API keys, or external services at runtime.
+React + TypeScript + Vite prototype for an HCI career counseling matching flow.
+
+The app supports two study conditions:
+
+- Baseline: basic appointment flow
+- Proposed: counselor-style preview with a short LLM-backed mock counseling session
+
+The LLM feature is served through a Vercel serverless function at `/api/chat`.
+The browser never receives the OpenAI API key.
 
 ## Local Run
 
@@ -34,6 +42,18 @@ The production output is generated in:
 dist
 ```
 
+## LLM Setup
+
+The project uses `gpt-4.1-nano` for the lowest-cost text counseling prototype.
+
+Set this environment variable in Vercel:
+
+```text
+OPENAI_API_KEY=your_api_key_here
+```
+
+If the LLM request fails or the key is not configured, the app falls back to the existing local mock response generator.
+
 ## Vercel Deployment
 
 1. Push this project to a GitHub repository.
@@ -43,26 +63,28 @@ dist
    - Install Command: `npm install`
    - Build Command: `npm run build`
    - Output Directory: `dist`
-4. Deploy the project.
-5. Share the deployed URL with the team for testing.
+4. Add the environment variable:
+   - `OPENAI_API_KEY`
+5. Deploy the project.
+6. Share the deployed URL with the team for testing.
 
 ## Team Testing Guide
 
 1. Open the deployed URL.
-2. Select an available date and time from the calendar.
-3. Enter a short career concern.
-4. Compare the two counselor types:
-   - Practical Readiness / 현실 점검형
-   - Emotional Support / 정서 공감형
-5. Choose the counselor style that feels more suitable.
-6. Continue the mock chat if desired.
+2. Use the assigned condition order:
+   - Baseline first, then Proposed
+   - or Proposed first, then Baseline
+3. Select an available date and time.
+4. Enter a short career concern.
+5. In the Proposed condition, compare counselor styles and continue the mock counseling session if desired.
+6. The mock counseling session is limited to 3 follow-up turns.
 7. Click `상담 신청하기`.
-8. Submit feedback separately, for example through Google Forms.
+8. Complete the Likert survey after each condition.
+9. After both conditions are complete, answer the open-ended comparison questions.
 
 ## Deployment Notes
 
-- This is a static frontend prototype.
-- No backend setup is required.
-- No environment variables are required.
-- No API keys are required.
-- Vercel should serve the generated `dist` directory after `npm run build`.
+- No database is used.
+- No user data is stored by this project.
+- The LLM API key must only be stored as a Vercel environment variable.
+- The current deployment URL can stay the same if this repository remains connected to the same Vercel project.

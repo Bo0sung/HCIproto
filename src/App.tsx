@@ -10,9 +10,11 @@ import StudyModeTabs from './components/StudyModeTabs';
 import UserInputStep from './components/UserInputStep';
 import type { ChatMessage, Counselor, Step, StudyMode } from './types';
 import { analyzeConcernSpecialty, getCounselorsForConcern } from './utils/concernAnalysis';
+import { requestCounselorReply } from './utils/llmChat';
 import { generateFollowUpResponse, generateMockResponse } from './utils/mockResponses';
 
 const createMessageId = () => `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+const MAX_FOLLOW_UP_TURNS = 3;
 
 export default function App() {
   const [studyMode, setStudyMode] = useState<StudyMode>('preview');
@@ -23,8 +25,10 @@ export default function App() {
   const [selectedCounselor, setSelectedCounselor] = useState<Counselor | null>(null);
   const [mockChatMessages, setMockChatMessages] = useState<ChatMessage[]>([]);
   const [completed, setCompleted] = useState(false);
+  const [isGeneratingResponse, setIsGeneratingResponse] = useState(false);
   const concernSpecialty = analyzeConcernSpecialty(userInput);
   const recommendedCounselors = getCounselorsForConcern(userInput);
+  const followUpTurns = Math.max(0, mockChatMessages.filter((item) => item.role === 'student').length - 1);
 
   const resetFlow = (nextMode = studyMode) => {
     setCurrentStep(1);
@@ -34,6 +38,7 @@ export default function App() {
     setSelectedCounselor(null);
     setMockChatMessages([]);
     setCompleted(false);
+    setIsGeneratingResponse(false);
     setStudyMode(nextMode);
   };
 
@@ -42,45 +47,101 @@ export default function App() {
     resetFlow(mode);
   };
 
-  const handleSelectCounselor = (counselor: Counselor) => {
+  const handleSelectCounselor = async (counselor: Counselor) => {
     setSelectedCounselor(counselor);
 
     if (studyMode === 'preview') {
-      setMockChatMessages([
-        {
-          id: createMessageId(),
-          role: 'student',
-          content: userInput,
-        },
-        {
-          id: createMessageId(),
-          role: 'counselor',
-          content: generateMockResponse(counselor.id, userInput),
-        },
-      ]);
-    } else {
-      setMockChatMessages([]);
+      const studentMessage: ChatMessage = {
+        id: createMessageId(),
+        role: 'student',
+        content: userInput,
+      };
+      const loadingMessage: ChatMessage = {
+        id: createMessageId(),
+        role: 'counselor',
+        content: '상담사 응답을 생성하고 있습니다...',
+      };
+      const initialMessages = [studentMessage, loadingMessage];
+
+      setMockChatMessages(initialMessages);
+      setCurrentStep(4);
+      setIsGeneratingResponse(true);
+
+      try {
+        const reply = await requestCounselorReply({
+          counselor,
+          originalConcern: userInput,
+          userMessage: userInput,
+          turnCount: 0,
+          messages: [studentMessage],
+        });
+        setMockChatMessages((messages) =>
+          messages.map((message) =>
+            message.id === loadingMessage.id ? { ...message, content: reply } : message,
+          ),
+        );
+      } catch {
+        setMockChatMessages((messages) =>
+          messages.map((message) =>
+            message.id === loadingMessage.id
+              ? { ...message, content: generateMockResponse(counselor.id, userInput) }
+              : message,
+          ),
+        );
+      } finally {
+        setIsGeneratingResponse(false);
+      }
+      return;
     }
 
+    setMockChatMessages([]);
     setCurrentStep(4);
   };
 
-  const handleAddTurn = (message: string) => {
-    if (!selectedCounselor) return;
+  const handleAddTurn = async (message: string) => {
+    if (!selectedCounselor || isGeneratingResponse || followUpTurns >= MAX_FOLLOW_UP_TURNS) return;
 
-    const turnCount = Math.max(0, mockChatMessages.filter((item) => item.role === 'student').length - 1);
+    const turnCount = followUpTurns;
     const studentMessage: ChatMessage = {
       id: createMessageId(),
       role: 'student',
       content: message.trim(),
     };
-    const counselorMessage: ChatMessage = {
+    const loadingMessage: ChatMessage = {
       id: createMessageId(),
       role: 'counselor',
-      content: generateFollowUpResponse(selectedCounselor.id, message, turnCount),
+      content: '상담사 응답을 생성하고 있습니다...',
     };
 
-    setMockChatMessages((messages) => [...messages, studentMessage, counselorMessage]);
+    const nextMessages = [...mockChatMessages, studentMessage, loadingMessage];
+    setMockChatMessages(nextMessages);
+    setIsGeneratingResponse(true);
+
+    try {
+      const reply = await requestCounselorReply({
+        counselor: selectedCounselor,
+        originalConcern: userInput,
+        userMessage: message,
+        turnCount: turnCount + 1,
+        messages: nextMessages.filter((item) => item.id !== loadingMessage.id),
+      });
+      setMockChatMessages((messages) =>
+        messages.map((item) => (item.id === loadingMessage.id ? { ...item, content: reply } : item)),
+      );
+    } catch {
+      setMockChatMessages((messages) =>
+        messages.map((item) =>
+          item.id === loadingMessage.id
+            ? {
+                ...item,
+                content: generateFollowUpResponse(selectedCounselor.id, message, turnCount),
+              }
+            : item,
+        ),
+      );
+    } finally {
+      setIsGeneratingResponse(false);
+    }
   };
 
   const handleSubmit = () => {
@@ -143,6 +204,9 @@ export default function App() {
           <MockChatStep
             counselor={selectedCounselor}
             messages={mockChatMessages}
+            isGenerating={isGeneratingResponse}
+            followUpTurns={followUpTurns}
+            maxFollowUpTurns={MAX_FOLLOW_UP_TURNS}
             onBack={() => setCurrentStep(3)}
             onAddTurn={handleAddTurn}
             onSubmit={handleSubmit}
