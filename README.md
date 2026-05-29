@@ -8,7 +8,7 @@ The app supports two study conditions:
 - Proposed: counselor-style preview with a short LLM-backed mock counseling session
 
 The LLM feature is served through a Vercel serverless function at `/api/chat`.
-The browser never receives the OpenAI API key.
+The browser never receives the API key.
 
 ## Local Run
 
@@ -44,12 +44,22 @@ dist
 
 ## LLM Setup
 
-The project uses `gpt-4.1-nano` for the lowest-cost text counseling prototype.
+The project uses Gemini API with `gemini-2.5-flash-lite`, Google's cost-efficient model for lightweight text generation.
 
 Set this environment variable in Vercel:
 
 ```text
-OPENAI_API_KEY=your_api_key_here
+GEMINI_API_KEY=your_gemini_api_key_here
+```
+
+`GOOGLE_API_KEY` is also accepted as a fallback variable name.
+
+Useful diagnostics after deployment:
+
+```text
+/api/health
+/api/gemini-test
+/api/chat
 ```
 
 If the LLM request fails or the key is not configured, the app falls back to the existing local mock response generator.
@@ -64,7 +74,7 @@ If the LLM request fails or the key is not configured, the app falls back to the
    - Build Command: `npm run build`
    - Output Directory: `dist`
 4. Add the environment variable:
-   - `OPENAI_API_KEY`
+   - `GEMINI_API_KEY`
 5. Deploy the project.
 6. Share the deployed URL with the team for testing.
 
@@ -86,5 +96,5 @@ If the LLM request fails or the key is not configured, the app falls back to the
 
 - No database is used.
 - No user data is stored by this project.
-- The LLM API key must only be stored as a Vercel environment variable.
+- The Gemini API key must only be stored as a Vercel environment variable.
 - The current deployment URL can stay the same if this repository remains connected to the same Vercel project.

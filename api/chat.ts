@@ -1,6 +1,6 @@
-const MODEL = 'gpt-4.1-nano';
+const MODEL = 'gemini-2.5-flash-lite';
 
-const getApiKey = () => process.env.OPENAI_API_KEY || process.env.OPEN_API_KEY;
+const getApiKey = () => process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
 
 const getPersonaPrompt = (approachType: string) => {
   if (approachType === 'practical') {
@@ -57,13 +57,21 @@ const readRequestBody = async (req: any) => {
   return JSON.parse(Buffer.concat(chunks).toString('utf8') || '{}');
 };
 
+const extractGeminiText = (data: any) =>
+  data.candidates
+    ?.flatMap((candidate: any) => candidate.content?.parts ?? [])
+    ?.map((part: any) => part.text)
+    ?.filter(Boolean)
+    ?.join('\n');
+
 export default async function handler(req: any, res: any) {
   if (req.method === 'GET') {
     return res.status(200).json({
       ok: true,
       route: '/api/chat',
-      hasOpenAiKey: Boolean(getApiKey()),
-      acceptedEnvNames: ['OPENAI_API_KEY', 'OPEN_API_KEY'],
+      provider: 'gemini',
+      hasGeminiKey: Boolean(getApiKey()),
+      acceptedEnvNames: ['GEMINI_API_KEY', 'GOOGLE_API_KEY'],
       model: MODEL,
       timestamp: new Date().toISOString(),
     });
@@ -78,7 +86,7 @@ export default async function handler(req: any, res: any) {
 
   if (!apiKey) {
     return res.status(500).json({
-      error: 'OPENAI_API_KEY is not configured. OPEN_API_KEY is also accepted as a fallback.',
+      error: 'GEMINI_API_KEY is not configured. GOOGLE_API_KEY is also accepted as a fallback.',
     });
   }
 
@@ -94,7 +102,7 @@ export default async function handler(req: any, res: any) {
       return res.status(400).json({ error: 'userMessage is required' });
     }
 
-    const instructions = [
+    const systemInstruction = [
       getPersonaPrompt(approachType),
       '',
       'Common rules:',
@@ -106,43 +114,48 @@ export default async function handler(req: any, res: any) {
       `- Mock counseling turn: ${turnCount + 1}`,
     ].join('\n');
 
-    const input = [
+    const prompt = [
       `학생의 최초 고민: ${originalConcern || userMessage}`,
       `이번 입력: ${userMessage}`,
     ].join('\n');
 
-    const response = await fetch('https://api.openai.com/v1/responses', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          systemInstruction: {
+            parts: [{ text: systemInstruction }],
+          },
+          contents: [
+            {
+              role: 'user',
+              parts: [{ text: prompt }],
+            },
+          ],
+          generationConfig: {
+            temperature: 0.45,
+            maxOutputTokens: 260,
+          },
+        }),
       },
-      body: JSON.stringify({
-        model: MODEL,
-        instructions,
-        input,
-        max_output_tokens: 260,
-        temperature: 0.45,
-      }),
-    });
+    );
+
+    const responseText = await response.text();
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('OpenAI API error', response.status, errorText);
-      return res.status(response.status).json({ error: errorText });
+      console.error('Gemini API error', response.status, responseText);
+      return res.status(response.status).json({ error: responseText });
     }
 
-    const data = await response.json();
-    const text =
-      typeof data.output_text === 'string'
-        ? data.output_text
-        : data.output?.flatMap((item: any) => item.content ?? [])
-            ?.map((item: any) => item.text)
-            ?.filter(Boolean)
-            ?.join('\n');
+    const data = JSON.parse(responseText);
+    const text = extractGeminiText(data);
 
     if (!text) {
-      return res.status(502).json({ error: 'No text returned from model' });
+      return res.status(502).json({ error: 'No text returned from Gemini model' });
     }
 
     return res.status(200).json({ text });
