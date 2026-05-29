@@ -97,6 +97,7 @@ export default async function handler(req: any, res: any) {
     const counselorName = String(body.counselorName ?? '상담사').slice(0, 80);
     const approachType = String(body.approachType ?? 'practical');
     const turnCount = Number(body.turnCount ?? 0);
+    const messages = Array.isArray(body.messages) ? body.messages : [];
 
     if (!userMessage.trim()) {
       return res.status(400).json({ error: 'userMessage is required' });
@@ -110,13 +111,27 @@ export default async function handler(req: any, res: any) {
       '- Do not confirm a real counseling appointment.',
       '- Keep the response concise and easy to scan.',
       '- Do not invent facts that the student did not provide.',
+      '- Continue from the latest user message and the recent conversation context.',
+      '- If the student mentions a new interest or experience, reflect that exact topic.',
       `- Counselor name: ${counselorName}`,
       `- Mock counseling turn: ${turnCount + 1}`,
     ].join('\n');
 
+    const recentConversation = messages.slice(-6).map((message: any) => {
+      const role = message.role === 'counselor' ? counselorName : '학생';
+      const content = String(message.content ?? '').slice(0, 500);
+      return `${role}: ${content}`;
+    });
+
     const prompt = [
       `학생의 최초 고민: ${originalConcern || userMessage}`,
+      '',
+      '최근 대화:',
+      ...recentConversation,
+      '',
       `이번 입력: ${userMessage}`,
+      '',
+      '위 대화 맥락을 반드시 이어서 답하세요. 학생이 새로 말한 경험이나 감정을 무시하지 마세요.',
     ].join('\n');
 
     const response = await fetch(

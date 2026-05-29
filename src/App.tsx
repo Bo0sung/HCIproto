@@ -144,12 +144,12 @@ export default function App() {
         messages: nextMessages.filter((item) => item.id !== loadingMessage.id),
       });
       await revealCounselorMessage(loadingMessage.id, reply);
-    } catch {
-      await revealCounselorMessage(
-        loadingMessage.id,
-        generateFollowUpResponse(selectedCounselor.id, message, turnCount),
-      );
-    } finally {
+      } catch {
+        await revealCounselorMessage(
+          loadingMessage.id,
+          generateFollowUpResponse(selectedCounselor.id, `${userInput}\n${message}`, turnCount),
+        );
+      } finally {
       setIsGeneratingResponse(false);
     }
   };
