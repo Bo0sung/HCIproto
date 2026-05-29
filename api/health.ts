@@ -10,6 +10,7 @@ export default function handler(req: any, res: any) {
     ok: true,
     service: 'seoultech-career-match-api',
     provider: 'gemini',
+    version: 'gemini-2026-05-29-01',
     hasGeminiKey: hasGeminiKey(),
     acceptedEnvNames: ['GEMINI_API_KEY', 'GOOGLE_API_KEY'],
     timestamp: new Date().toISOString(),
