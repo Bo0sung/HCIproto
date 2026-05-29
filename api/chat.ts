@@ -45,6 +45,10 @@ const readRequestBody = async (req: any) => {
     return req.body;
   }
 
+  if (typeof req.body === 'string') {
+    return JSON.parse(req.body || '{}');
+  }
+
   const chunks: Buffer[] = [];
   for await (const chunk of req) {
     chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
@@ -113,6 +117,7 @@ export default async function handler(req: any, res: any) {
 
     if (!response.ok) {
       const errorText = await response.text();
+      console.error('OpenAI API error', response.status, errorText);
       return res.status(response.status).json({ error: errorText });
     }
 
@@ -131,6 +136,7 @@ export default async function handler(req: any, res: any) {
 
     return res.status(200).json({ text });
   } catch (error) {
+    console.error('Vercel chat function error', error);
     return res.status(500).json({
       error: error instanceof Error ? error.message : 'Unexpected server error',
     });
