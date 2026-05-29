@@ -35,7 +35,8 @@ export async function requestCounselorReply({
   });
 
   if (!response.ok) {
-    throw new Error(`LLM request failed: ${response.status}`);
+    const errorText = await response.text();
+    throw new Error(`LLM request failed: ${response.status} ${errorText}`);
   }
 
   const data = (await response.json()) as { text?: string };
